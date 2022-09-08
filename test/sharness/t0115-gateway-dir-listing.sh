@@ -194,4 +194,5 @@ test_kill_ipfs_daemon
 test_expect_success "clean up ipfs dir" '
   rm -rf "$IPFS_PATH"
 '
+test_kill_saturn_node
 test_done

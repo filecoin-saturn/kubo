@@ -6,6 +6,7 @@ test_description="Test HTTP Gateway CAR (application/vnd.ipld.car) Support"
 
 test_init_ipfs
 test_launch_ipfs_daemon_without_network
+test_run_saturn_node
 
 # CAR stream is not deterministic, as blocks can arrive in random order,
 # but if we have a small file that fits into a single block, and export its CID
@@ -87,7 +88,7 @@ test_launch_ipfs_daemon_without_network
     ipfs dag import test-dag.car &&
     curl -svX GET -H "Accept: application/vnd.ipld.car" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT_DIR_CID/subdir/ascii.txt" >/dev/null 2>curl_output &&
     cat curl_output &&
-    grep "< Content-Type: application/vnd.ipld.car; version=1" curl_output
+    grep -i "< Content-Type: application/vnd.ipld.car; version=1" curl_output
     '
 
     # CAR is streamed, gateway may not have the entire thing, unable to calculate total size
@@ -96,40 +97,39 @@ test_launch_ipfs_daemon_without_network
     '
 
     test_expect_success "GET response for application/vnd.ipld.car includes Content-Disposition" '
-    grep "< Content-Disposition: attachment\; filename=\"${FILE_CID}.car\"" curl_output
+    grep -i "< Content-Disposition: attachment\; filename=\"${FILE_CID}.car\"" curl_output
     '
 
     test_expect_success "GET response for application/vnd.ipld.car includes nosniff hint" '
-    grep "< X-Content-Type-Options: nosniff" curl_output
+    grep -i "< X-Content-Type-Options: nosniff" curl_output
     '
 
     # CAR is streamed, gateway may not have the entire thing, unable to support range-requests
     # Partial downloads and resumes should be handled using
     # IPLD selectors: https://github.com/ipfs/go-ipfs/issues/8769
-    test_expect_success "GET response for application/vnd.ipld.car includes Accept-Ranges header" '
-    grep "< Accept-Ranges: none" curl_output
+    grep -i "< Accept-Ranges: none" curl_output
     '
 
     test_expect_success "GET for application/vnd.ipld.car with query filename includes Content-Disposition with custom filename" '
     curl -svX GET -H "Accept: application/vnd.ipld.car" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT_DIR_CID/subdir/ascii.txt?filename=foobar.car" > curl_output_filename 2>&1 &&
     cat curl_output_filename &&
-    grep "< Content-Disposition: attachment\; filename=\"foobar.car\"" curl_output_filename
+    grep -i "< Content-Disposition: attachment\; filename=\"foobar.car\"" curl_output_filename
     '
 
 # Cache control HTTP headers
 
     test_expect_success "GET response for application/vnd.ipld.car includes a weak Etag" '
-    grep "< Etag: W/\"${FILE_CID}.car\"" curl_output
+    grep -i "< Etag: W/\"${FILE_CID}.car\"" curl_output
     '
 
     # (basic checks, detailed behavior for some fields is tested in  t0116-gateway-cache.sh)
     test_expect_success "GET response for application/vnd.ipld.car includes X-Ipfs-Path and X-Ipfs-Roots" '
-    grep "< X-Ipfs-Path" curl_output &&
-    grep "< X-Ipfs-Roots" curl_output
+    grep -i "< X-Ipfs-Path" curl_output &&
+    grep -i "< X-Ipfs-Roots" curl_output
     '
 
     test_expect_success "GET response for application/vnd.ipld.car includes same Cache-Control as a block or a file" '
-    grep "< Cache-Control: public, max-age=29030400, immutable" curl_output
+    grep -i "< Cache-Control: public, max-age=29030400, immutable" curl_output
     '
 
 test_kill_ipfs_daemon

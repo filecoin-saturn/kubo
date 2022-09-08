@@ -6,6 +6,7 @@ test_description="Test HTTP Gateway Cache Control Support"
 
 test_init_ipfs
 test_launch_ipfs_daemon_without_network
+test_run_saturn_node
 
 # Cache control support is based on logical roots (each path segment == one logical root).
 # To maximize the test surface, we want to test:
@@ -98,22 +99,22 @@ test_expect_success "Prepare IPNS unixfs content path for testing" '
 
 # Cache-Control: only-if-cached
     test_expect_success "HEAD for /ipfs/ with only-if-cached succeeds when in local datastore" '
-    curl -sv -I -H "Cache-Control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT1_CID/root2/root3/root4/index.html" > curl_onlyifcached_postitive_head 2>&1 &&
+    curl -sv -I -H "cache-control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT1_CID/root2/root3/root4/index.html" > curl_onlyifcached_postitive_head 2>&1 &&
     cat curl_onlyifcached_postitive_head &&
     grep "< HTTP/1.1 200 OK" curl_onlyifcached_postitive_head
     '
     test_expect_success "HEAD for /ipfs/ with only-if-cached fails when not in local datastore" '
-    curl -sv -I -H "Cache-Control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$(date | ipfs add --only-hash -Q)" > curl_onlyifcached_negative_head 2>&1 &&
+    curl -sv -I -H "cache-control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$(date | ipfs add --only-hash -Q)" > curl_onlyifcached_negative_head 2>&1 &&
     cat curl_onlyifcached_negative_head &&
     grep "< HTTP/1.1 412 Precondition Failed" curl_onlyifcached_negative_head
     '
     test_expect_success "GET for /ipfs/ with only-if-cached succeeds when in local datastore" '
-    curl -svX GET -H "Cache-Control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT1_CID/root2/root3/root4/index.html" >/dev/null 2>curl_onlyifcached_postitive_out &&
+    curl -svX GET -H "cache-control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$ROOT1_CID/root2/root3/root4/index.html" >/dev/null 2>curl_onlyifcached_postitive_out &&
     cat curl_onlyifcached_postitive_out &&
     grep "< HTTP/1.1 200 OK" curl_onlyifcached_postitive_out
     '
     test_expect_success "GET for /ipfs/ with only-if-cached fails when not in local datastore" '
-    curl -svX GET -H "Cache-Control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$(date | ipfs add --only-hash -Q)" >/dev/null 2>curl_onlyifcached_negative_out &&
+    curl -svX GET -H "cache-control: only-if-cached" "http://127.0.0.1:$GWAY_PORT/ipfs/$(date | ipfs add --only-hash -Q)" >/dev/null 2>curl_onlyifcached_negative_out &&
     cat curl_onlyifcached_negative_out &&
     grep "< HTTP/1.1 412 Precondition Failed" curl_onlyifcached_negative_out
     '
@@ -122,78 +123,78 @@ test_expect_success "Prepare IPNS unixfs content path for testing" '
 
     ## dir generated listing
     test_expect_success "GET /ipfs/ dir listing response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3" curl_ipfs_dir_listing_output
+    grep -i "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3" curl_ipfs_dir_listing_output
     '
     test_expect_success "GET /ipns/ dir listing response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3" curl_ipns_dir_listing_output
+    grep -i "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3" curl_ipns_dir_listing_output
     '
 
     ## dir static index.html
     test_expect_success "GET /ipfs/ dir index.html response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3/root4/" curl_ipfs_dir_index.html_output
+    grep -i "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3/root4/" curl_ipfs_dir_index.html_output
     '
     test_expect_success "GET /ipns/ dir index.html response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3/root4/" curl_ipns_dir_index.html_output
+    grep -i "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3/root4/" curl_ipns_dir_index.html_output
     '
 
     # file
     test_expect_success "GET /ipfs/ file response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3/root4/index.html" curl_ipfs_file_output
+    grep -i "< X-Ipfs-Path: /ipfs/$ROOT1_CID/root2/root3/root4/index.html" curl_ipfs_file_output
     '
     test_expect_success "GET /ipns/ file response has original content path in X-Ipfs-Path" '
-    grep "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3/root4/index.html" curl_ipns_file_output
+    grep -i "< X-Ipfs-Path: /ipns/$TEST_IPNS_ID/root2/root3/root4/index.html" curl_ipns_file_output
     '
 
 # X-Ipfs-Roots
 
     ## dir generated listing
     test_expect_success "GET /ipfs/ dir listing response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID}" curl_ipfs_dir_listing_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID}" curl_ipfs_dir_listing_output
     '
     test_expect_success "GET /ipns/ dir listing response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID}" curl_ipns_dir_listing_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID}" curl_ipns_dir_listing_output
     '
 
     ## dir static index.html
     test_expect_success "GET /ipfs/ dir index.html response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID}" curl_ipfs_dir_index.html_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID}" curl_ipfs_dir_index.html_output
     '
     test_expect_success "GET /ipns/ dir index.html response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID}" curl_ipns_dir_index.html_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID}" curl_ipns_dir_index.html_output
     '
 
     ## file
     test_expect_success "GET /ipfs/ file response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID},${FILE_CID}" curl_ipfs_file_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID},${FILE_CID}" curl_ipfs_file_output
     '
     test_expect_success "GET /ipns/ file response has logical CID roots in X-Ipfs-Roots" '
-    grep "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID},${FILE_CID}" curl_ipns_file_output
+    grep -i "< X-Ipfs-Roots: ${ROOT1_CID},${ROOT2_CID},${ROOT3_CID},${ROOT4_CID},${FILE_CID}" curl_ipns_file_output
     '
 
 # Etag
 
     ## dir generated listing
     test_expect_success "GET /ipfs/ dir response has special Etag for generated dir listing" '
-    grep -E "< Etag: \"DirIndex-.+_CID-${ROOT3_CID}\"" curl_ipfs_dir_listing_output
+    grep -iE "< Etag: \"DirIndex-.+_CID-${ROOT3_CID}\"" curl_ipfs_dir_listing_output
     '
     test_expect_success "GET /ipns/ dir response has special Etag for generated dir listing" '
-    grep -E "< Etag: \"DirIndex-.+_CID-${ROOT3_CID}\"" curl_ipns_dir_listing_output
+    grep -iE "< Etag: \"DirIndex-.+_CID-${ROOT3_CID}\"" curl_ipns_dir_listing_output
     '
 
     ## dir static index.html should use CID of  the index.html file for improved HTTP caching
     test_expect_success "GET /ipfs/ dir index.html response has dir CID as Etag" '
-    grep "< Etag: \"${ROOT4_CID}\"" curl_ipfs_dir_index.html_output
+    grep -i "< Etag: \"${ROOT4_CID}\"" curl_ipfs_dir_index.html_output
     '
     test_expect_success "GET /ipns/ dir index.html response has dir CID as Etag" '
-    grep "< Etag: \"${ROOT4_CID}\"" curl_ipns_dir_index.html_output
+    grep -i "< Etag: \"${ROOT4_CID}\"" curl_ipns_dir_index.html_output
     '
 
     ## file
     test_expect_success "GET /ipfs/ response has CID as Etag for a file" '
-    grep "< Etag: \"${FILE_CID}\"" curl_ipfs_file_output
+    grep -i "< Etag: \"${FILE_CID}\"" curl_ipfs_file_output
     '
     test_expect_success "GET /ipns/ response has CID as Etag for a file" '
-    grep "< Etag: \"${FILE_CID}\"" curl_ipns_file_output
+    grep -i "< Etag: \"${FILE_CID}\"" curl_ipns_file_output
     '
 
 # If-None-Match (return 304 Not Modified when client sends matching Etag they already have)

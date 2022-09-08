@@ -419,7 +419,7 @@ test_must_be_empty() {
 
 test_should_contain() {
   test "$#" = 2 || error "bug in the test script: not 2 parameters to test_should_contain"
-  if ! grep -q "$1" "$2"
+  if ! grep -iq "$1" "$2"
   then
     echo "'$2' does not contain '$1', it contains:"
     cat "$2"
@@ -580,4 +580,3 @@ purge_blockstore() {
     [[ -z "$( ipfs repo gc )" ]]
   '
 }
-
