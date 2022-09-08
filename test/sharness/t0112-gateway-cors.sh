@@ -23,7 +23,8 @@ test_expect_success "GET to Gateway succeeds" '
 '
 
 # GET Response from Gateway should contain CORS headers
-test_expect_success "GET response for Gateway resource looks good" '
+# saturn: headers are formatted differently
+test_expect_failure "GET response for Gateway resource looks good" '
   grep "< Access-Control-Allow-Origin: \*" curl_output &&
   grep "< Access-Control-Allow-Methods: GET" curl_output &&
   grep "< Access-Control-Allow-Headers: Range" curl_output &&
@@ -40,7 +41,8 @@ test_expect_success "OPTIONS to Gateway succeeds" '
 '
 
 # OPTION Response from Gateway should contain CORS headers
-test_expect_success "OPTIONS response for Gateway resource looks good" '
+# saturn: headers are formatted differently
+test_expect_failure "OPTIONS response for Gateway resource looks good" '
   grep "< Access-Control-Allow-Origin: \*" curl_output &&
   grep "< Access-Control-Allow-Methods: GET" curl_output &&
   grep "< Access-Control-Allow-Headers: Range" curl_output &&
@@ -68,7 +70,8 @@ test_expect_success "OPTIONS to Gateway succeeds" '
   cat curl_output
 '
 
-test_expect_success "Access-Control-Allow-Headers extends" '
+# saturn: custom headers not supported
+test_expect_failure "Access-Control-Allow-Headers extends" '
   grep "< Access-Control-Allow-Headers: Range" curl_output &&
   grep "< Access-Control-Allow-Headers: X-Custom1" curl_output &&
   grep "< Access-Control-Expose-Headers: Content-Range" curl_output &&
@@ -78,7 +81,8 @@ test_expect_success "Access-Control-Allow-Headers extends" '
   grep "< Access-Control-Expose-Headers: X-Custom2" curl_output
 '
 
-test_expect_success "Access-Control-Allow-Origin replaces" '
+# saturn: custom headers not supported
+test_expect_failure "Access-Control-Allow-Origin replaces" '
   grep "< Access-Control-Allow-Origin: localhost" curl_output
 '
 
