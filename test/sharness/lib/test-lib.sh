@@ -22,6 +22,11 @@ if test "$MAKE_SKIP_PATH" != "1"; then
   fi
 fi
 
+if [[ -z "${L1_NODE_REPO_PATH}" ]]; then
+  echo >&2 "Please set L1_NODE_REPO_PATH."
+  exit 1
+fi
+
 # set sharness verbosity. we set the env var directly as
 # it's too late to pass in --verbose, and --verbose is harder
 # to pass through in some cases.
