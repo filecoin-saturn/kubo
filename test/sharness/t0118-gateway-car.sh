@@ -133,5 +133,6 @@ test_launch_ipfs_daemon_without_network
     '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 test_done

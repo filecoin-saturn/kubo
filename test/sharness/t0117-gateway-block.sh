@@ -72,5 +72,6 @@ test_expect_success "Create text fixtures" '
     '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 test_done

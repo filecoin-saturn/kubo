@@ -246,5 +246,6 @@ test_expect_success "Prepare IPNS unixfs content path for testing" '
     '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 test_done

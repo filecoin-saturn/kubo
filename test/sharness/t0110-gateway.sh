@@ -10,6 +10,7 @@ test_description="Test HTTP Gateway"
 
 test_init_ipfs
 test_launch_ipfs_daemon
+test_run_saturn_node
 
 port=$GWAY_PORT
 apiport=$API_PORT
@@ -294,6 +295,7 @@ test_expect_success "Verify gateway file" '
 '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 
 GWPORT=32563

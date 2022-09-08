@@ -8,6 +8,7 @@ test_description="Test symlink support on the HTTP gateway"
 
 test_init_ipfs
 test_launch_ipfs_daemon
+test_run_saturn_node
 
 
 test_expect_success "Create a test directory with symlinks" '
@@ -34,5 +35,6 @@ test_expect_success "Test the symlink" '
 '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 test_done

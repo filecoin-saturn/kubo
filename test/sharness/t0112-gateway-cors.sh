@@ -10,6 +10,7 @@ test_description="Test HTTP Gateway CORS Support"
 
 test_init_ipfs
 test_launch_ipfs_daemon
+test_run_saturn_node
 
 thash='QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn'
 
@@ -50,6 +51,7 @@ test_expect_success "OPTIONS response for Gateway resource looks good" '
 '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 # Change headers
 test_expect_success "Can configure gateway headers" '
@@ -59,6 +61,7 @@ test_expect_success "Can configure gateway headers" '
 '
 
 test_launch_ipfs_daemon
+test_run_saturn_node
 
 test_expect_success "OPTIONS to Gateway succeeds" '
   curl -svX OPTIONS "http://127.0.0.1:$GWAY_PORT/ipfs/$thash" 2>curl_output &&
@@ -102,5 +105,6 @@ test_expect_success "OPTIONS response for API looks good" '
 '
 
 test_kill_ipfs_daemon
+test_kill_saturn_node
 
 test_done

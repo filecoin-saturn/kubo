@@ -318,6 +318,40 @@ test_launch_ipfs_daemon_and_mount() {
 
 }
 
+test_run_saturn_node () {
+  test_expect_success "saturn docker image build succeeds" '
+    docker build -t saturn-node -f "$L1_NODE_REPO_PATH/Dockerfile" "$L1_NODE_REPO_PATH" | tee strn-build-actual ||
+    test_fsh cat strn-build-actual
+  '
+
+  # Store daemon info before reassignment
+  DAEMON_GWAY_PORT=$GWAY_PORT
+  DAEMON_GWAY_ADDR=$GWAY_ADDR
+
+  # Reassign global vars used by tests
+  GWAY_PORT=80
+  GWAY_ADDR=127.0.0.1:$GWAY_PORT
+  GWAY_MADDR=/ip4/127.0.0.1/tcp/$GWAY_PORT
+
+  docker volume create saturn-tmp-volume > /dev/null
+
+  docker run --name saturn-node -itd \
+          --add-host=host.docker.internal:host-gateway \
+          -v saturn-tmp-volume:/usr/src/app/shared/nginx_cache \
+          -e FIL_WALLET_ADDRESS=f012356 \
+          -e NODE_OPERATOR_EMAIL=test \
+          -e IPFS_GATEWAY_ORIGIN="http://host.docker.internal:$DAEMON_GWAY_PORT" \
+          -e ORCHESTRATOR_REGISTRATION="false" \
+          -e DEBUG=node* \
+          -p $GWAY_PORT:$GWAY_PORT \
+          saturn-node > /dev/null
+
+  test_expect_success "saturn node is ready" '
+    pollEndpoint -host=$GWAY_MADDR -v -tout=1s -tries=60 2>poll_apierr > poll_apiout ||
+    test_fsh cat poll_apierr || test_fsh cat poll_apiout
+  '
+}
+
 test_kill_repeat_10_sec() {
   # try to shut down once + wait for graceful exit
   kill $1
@@ -346,6 +380,11 @@ test_kill_ipfs_daemon() {
   test_expect_success "'ipfs daemon' can be killed" '
     test_kill_repeat_10_sec $IPFS_PID
   '
+}
+
+test_kill_saturn_node() {
+  docker stop saturn-node | xargs docker rm > /dev/null
+  docker volume rm saturn-tmp-volume > /dev/null
 }
 
 test_curl_resp_http_code() {

@@ -17,6 +17,7 @@ test_expect_success "ipfs init" '
 '
 
 test_launch_ipfs_daemon_without_network
+test_run_saturn_node
 
 test_expect_success "Add the test directory" '
   mkdir -p rootDir/ipfs &&
