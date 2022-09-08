@@ -337,8 +337,6 @@ test_run_saturn_node () {
   GWAY_ADDR=127.0.0.1:$GWAY_PORT
   GWAY_MADDR=/ip4/127.0.0.1/tcp/$GWAY_PORT
 
-  : "${L1_NODE_LOGS:=false}"
-
   docker volume create saturn-tmp-volume > /dev/null
 
   docker run --name saturn-node -itd \
@@ -352,8 +350,8 @@ test_run_saturn_node () {
           -p $GWAY_PORT:$GWAY_PORT \
           saturn-node > /dev/null
 
-  if [ $L1_NODE_LOGS == "true" ]; then
-    docker logs -f saturn-node > /tmp/saturn-node.log &
+  if [ -n "$L1_NODE_LOG_FILE" ]; then
+    docker logs -f saturn-node > "$L1_NODE_LOG_FILE" &
   fi
 
   test_expect_success "saturn node is ready" '
