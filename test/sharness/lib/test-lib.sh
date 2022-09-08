@@ -325,8 +325,7 @@ test_launch_ipfs_daemon_and_mount() {
 
 test_run_saturn_node () {
   test_expect_success "saturn docker image build succeeds" '
-    docker build -t saturn-node -f "$L1_NODE_REPO_PATH/Dockerfile" "$L1_NODE_REPO_PATH" | tee strn-build-actual ||
-    test_fsh cat strn-build-actual
+    docker build -t saturn-node -f "$L1_NODE_REPO_PATH/Dockerfile" "$L1_NODE_REPO_PATH"
   '
 
   # Store daemon info before reassignment
