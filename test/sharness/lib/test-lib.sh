@@ -340,11 +340,11 @@ test_run_saturn_node () {
   docker volume create saturn-tmp-volume > /dev/null
 
   docker run --name saturn-node -itd \
-          --add-host=host.docker.internal:host-gateway \
+          --net=host \
           -v saturn-tmp-volume:/usr/src/app/shared/nginx_cache \
           -e FIL_WALLET_ADDRESS=f012356 \
           -e NODE_OPERATOR_EMAIL=test \
-          -e IPFS_GATEWAY_ORIGIN="http://host.docker.internal:$DAEMON_GWAY_PORT" \
+          -e IPFS_GATEWAY_ORIGIN="http://127.0.0.1:$DAEMON_GWAY_PORT" \
           -e ORCHESTRATOR_REGISTRATION="false" \
           -e DEBUG=node* \
           -p $GWAY_PORT:$GWAY_PORT \
