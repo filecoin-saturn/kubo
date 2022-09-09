@@ -104,7 +104,8 @@ test_expect_success "GET IPFS inlined zero-length data object returns ok code (2
   test_should_contain "Content-Length: 0" empty_ok_response
 '
 
-test_expect_success "GET /ipfs/ipfs/{cid} returns redirect to the valid path" '
+# saturn: L1 errors early on invalid CID
+test_expect_failure "GET /ipfs/ipfs/{cid} returns redirect to the valid path" '
   curl -sD - "http://127.0.0.1:$port/ipfs/ipfs/bafkqaaa?query=to-remember" > response_with_double_ipfs_ns &&
   test_should_contain "<meta http-equiv=\"refresh\" content=\"10;url=/ipfs/bafkqaaa?query=to-remember\" />" response_with_double_ipfs_ns &&
   test_should_contain "<link rel=\"canonical\" href=\"/ipfs/bafkqaaa?query=to-remember\" />" response_with_double_ipfs_ns
@@ -125,7 +126,8 @@ test_expect_failure "GET IPNS path output looks good" '
   test_cmp expected actual
 '
 
-test_expect_success "GET /ipfs/ipns/{peerid} returns redirect to the valid path" '
+# saturn: L1 errors early on invalid CID
+test_expect_failure "GET /ipfs/ipns/{peerid} returns redirect to the valid path" '
   PEERID=$(ipfs config Identity.PeerID) &&
   curl -sD - "http://127.0.0.1:$port/ipfs/ipns/${PEERID}?query=to-remember" > response_with_ipfs_ipns_ns &&
   test_should_contain "<meta http-equiv=\"refresh\" content=\"10;url=/ipns/${PEERID}?query=to-remember\" />" response_with_ipfs_ipns_ns &&
