@@ -13,5 +13,5 @@ for file in $(find .  -maxdepth 1 -name 't011*-gateway*.sh' -type f); do
     continue
   fi
   echo Running $file
-  bash $file
+  bash $file || exit 1;
 done
